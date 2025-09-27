@@ -145,29 +145,40 @@ const questions = [
   {
     text: "La majorité des gens qui ne pensent pas comme moi on un avis different lier à leur haines.",
     points: [-2, -1, 0, 1, 3]
-  },
-  
+  }
 ];
 
 // -----------------------------
-// MÉLANGE DES QUESTIONS (Fisher-Yates)
+// FONCTION DE HASARD DÉTERMINISTE
 // -----------------------------
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+function seededRandom(seed) {
+  var x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
 }
 
-// Mélanger le tableau des questions avant de commencer
-shuffleArray(questions);
+// -----------------------------
+// MÉLANGE FISHER-YATES AVEC SEED
+// -----------------------------
+function shuffleArraySeeded(array, seed) {
+  let arr = array.slice(); // copie pour ne pas modifier l'original
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom(seed + i) * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// -----------------------------
+// MÉLANGE FIXE AVEC SEED
+// -----------------------------
+const seed = 12345; // changer ce nombre pour un autre ordre fixe
+const questionsShuffled = shuffleArraySeeded(questions, seed);
 
 // -----------------------------
 // VARIABLES
 // -----------------------------
 let currentQuestion = 0;
-let answers = new Array(questions.length).fill(null);
+let answers = new Array(questionsShuffled.length).fill(null);
 
 // -----------------------------
 // AFFICHER UNE QUESTION
@@ -176,9 +187,9 @@ function showQuestion(index) {
   const questionBox = document.getElementById("questionBox");
   questionBox.innerHTML = "";
 
-  const q = questions[index];
+  const q = questionsShuffled[index];
   const title = document.createElement("h2");
-  title.textContent = `Question ${index + 1} / ${questions.length}`;
+  title.textContent = `Question ${index + 1} / ${questionsShuffled.length}`;
   questionBox.appendChild(title);
 
   const text = document.createElement("p");
@@ -204,7 +215,7 @@ function showQuestion(index) {
 
     input.addEventListener("change", () => {
       answers[index] = i;
-      toggleButtons(); // active le bouton quand une réponse est choisie
+      toggleButtons();
     });
 
     const lbl = document.createElement("label");
@@ -221,10 +232,9 @@ function showQuestion(index) {
 
   questionBox.appendChild(optionsContainer);
 
-  // Boutons navigation
   document.getElementById("prevBtn").style.display = (index === 0) ? "none" : "inline-block";
-  document.getElementById("nextBtn").style.display = (index === questions.length - 1) ? "none" : "inline-block";
-  document.getElementById("submitBtn").style.display = (index === questions.length - 1) ? "inline-block" : "none";
+  document.getElementById("nextBtn").style.display = (index === questionsShuffled.length - 1) ? "none" : "inline-block";
+  document.getElementById("submitBtn").style.display = (index === questionsShuffled.length - 1) ? "inline-block" : "none";
 
   toggleButtons();
 }
@@ -235,7 +245,7 @@ function showQuestion(index) {
 function toggleButtons() {
   const hasAnswer = answers[currentQuestion] !== null;
 
-  if (currentQuestion < questions.length - 1) {
+  if (currentQuestion < questionsShuffled.length - 1) {
     document.getElementById("nextBtn").disabled = !hasAnswer;
   } else {
     document.getElementById("submitBtn").disabled = !hasAnswer;
@@ -249,7 +259,7 @@ function calculateResult() {
   let total = 0;
   let unanswered = [];
 
-  questions.forEach((q, index) => {
+  questionsShuffled.forEach((q, index) => {
     if (answers[index] !== null) {
       total += q.points[answers[index]];
     } else {
@@ -257,17 +267,16 @@ function calculateResult() {
     }
   });
 
-  if (total < 1) {total = 0 }
+  if (total < 1) total = 0;
+
   const quizContainer = document.getElementById("quizContainer");
   const resultDiv = document.getElementById("result");
 
   if (unanswered.length > 0) {
     resultDiv.innerHTML = `<p>⚠️ Tu n’as pas répondu à la/aux question(s) : ${unanswered.join(", ")}</p>`;
   } else {
-    // Faire disparaître tout le quiz
     quizContainer.innerHTML = "";
 
-    // Créer conteneur pour le score et la description
     const scoreBox = document.createElement("div");
     scoreBox.style.textAlign = "center";
     scoreBox.style.padding = "50px";
@@ -277,7 +286,6 @@ function calculateResult() {
     scoreBox.style.margin = "100px auto";
     scoreBox.style.boxShadow = "0 8px 20px rgba(0,0,0,0.2)";
 
-    // Ajouter le score
     const scoreTitle = document.createElement("h1");
     scoreTitle.textContent = "Ton score final";
     const scoreValue = document.createElement("h2");
@@ -287,14 +295,13 @@ function calculateResult() {
     scoreBox.appendChild(scoreTitle);
     scoreBox.appendChild(scoreValue);
 
-    // Ajouter description selon le score
     const desc = document.createElement("p");
     desc.style.marginTop = "20px";
     desc.style.fontSize = "1.1em";
     desc.style.color = "#333";
     desc.style.fontWeight = "500";
 
-    // Exemple de descriptions selon score (à adapter)
+    // Descriptions selon score
     if (total > 0 && total <= 14) {
       desc.textContent = "Tu es l'élite parmis les moins affreux woke.";
     } else if (total > 14 && total <= 28) {
@@ -312,7 +319,7 @@ function calculateResult() {
     } else if (total > 100 && total <= 112) {
       desc.textContent = "Je ne savais meme pas que c'etait possible de depasser les 100, tu es un monstre d'affreux wokisme.";
     } else if (total > 112 && total <= 126) {
-    desc.textContent = "Il n'y a donc aucune limite a l'affreux wokisme ???.";
+      desc.textContent = "Il n'y a donc aucune limite a l'affreux wokisme ???.";
     } else {
       desc.textContent = "Tu es de tres loin le pire, le plus affreux de toute les woke, la plaie qui condamnera le monde a la devastation.";
     }
@@ -333,7 +340,7 @@ document.getElementById("prevBtn").addEventListener("click", () => {
 });
 
 document.getElementById("nextBtn").addEventListener("click", () => {
-  if (currentQuestion < questions.length - 1 && answers[currentQuestion] !== null) {
+  if (currentQuestion < questionsShuffled.length - 1 && answers[currentQuestion] !== null) {
     currentQuestion++;
     showQuestion(currentQuestion);
   }
@@ -348,6 +355,4 @@ document.getElementById("submitBtn").addEventListener("click", () => {
 // -----------------------------
 // INITIALISATION
 // -----------------------------
-shuffleArray(questions); // Mélanger à chaque chargement
-showQuestion(currentQuestion);
 showQuestion(currentQuestion);
