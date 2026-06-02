@@ -1,6 +1,3 @@
-// -----------------------------
-// CONFIGURATION DES QUESTIONS
-// -----------------------------
 const questions = [
   {
     text: "(Si) Le consantement n'existe pas chez les animaux, alors tout les mâles sont des violeurs.",
@@ -148,17 +145,11 @@ const questions = [
   }
 ];
 
-// -----------------------------
-// FONCTION DE HASARD DÉTERMINISTE
-// -----------------------------
 function seededRandom(seed) {
   var x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 }
 
-// -----------------------------
-// MÉLANGE FISHER-YATES AVEC SEED
-// -----------------------------
 function shuffleArraySeeded(array, seed) {
   let arr = array.slice(); // copie pour ne pas modifier l'original
   for (let i = arr.length - 1; i > 0; i--) {
@@ -168,21 +159,12 @@ function shuffleArraySeeded(array, seed) {
   return arr;
 }
 
-// -----------------------------
-// MÉLANGE FIXE AVEC SEED
-// -----------------------------
 const seed = 12345; // changer ce nombre pour un autre ordre fixe
 const questionsShuffled = shuffleArraySeeded(questions, seed);
 
-// -----------------------------
-// VARIABLES
-// -----------------------------
 let currentQuestion = 0;
 let answers = new Array(questionsShuffled.length).fill(null);
 
-// -----------------------------
-// AFFICHER UNE QUESTION
-// -----------------------------
 function showQuestion(index) {
   const questionBox = document.getElementById("questionBox");
   questionBox.innerHTML = "";
@@ -239,9 +221,6 @@ function showQuestion(index) {
   toggleButtons();
 }
 
-// -----------------------------
-// ACTIVER/DÉSACTIVER LES BOUTONS
-// -----------------------------
 function toggleButtons() {
   const hasAnswer = answers[currentQuestion] !== null;
 
@@ -252,9 +231,6 @@ function toggleButtons() {
   }
 }
 
-// -----------------------------
-// CALCUL DU SCORE FINAL
-// -----------------------------
 function calculateResult() {
   let total = 0;
   let unanswered = [];
@@ -301,7 +277,6 @@ function calculateResult() {
     desc.style.color = "#333";
     desc.style.fontWeight = "500";
 
-    // Descriptions selon score
     if (total > 0 && total <= 14) {
       desc.textContent = "Tu es l'élite parmis les moins affreux woke.";
     } else if (total > 14 && total <= 28) {
@@ -329,9 +304,6 @@ function calculateResult() {
   }
 }
 
-// -----------------------------
-// ÉVÉNEMENTS
-// -----------------------------
 document.getElementById("prevBtn").addEventListener("click", () => {
   if (currentQuestion > 0) {
     currentQuestion--;
@@ -352,7 +324,4 @@ document.getElementById("submitBtn").addEventListener("click", () => {
   }
 });
 
-// -----------------------------
-// INITIALISATION
-// -----------------------------
 showQuestion(currentQuestion);
