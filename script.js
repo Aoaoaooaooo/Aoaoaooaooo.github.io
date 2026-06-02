@@ -277,7 +277,7 @@ function calculateResult() {
     desc.style.color = "#333";
     desc.style.fontWeight = "500";
 
-    if (total > 0 && total <= 14) {
+    if (total >= 0 && total <= 14) {
       desc.textContent = "Tu es l'élite parmis les moins affreux woke.";
     } else if (total > 14 && total <= 28) {
       desc.textContent = "Tu es en bonne voie est presque sans affreux wokisme mais il reste du travail.";
